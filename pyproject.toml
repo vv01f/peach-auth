@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "peach-auth"
+version = "0.0.1"
+description = "This is WIP for authentication on Peach API for peachbitcoin.com"
+authors = [
+    { name="Wolf" }
+]
+license = { text = "MIT" }
+
+[project.dependencies]
+secp256k1 = "*"
+coincurve = "*"
+bech32 = "*"
+requests = "*"
+bip-utils = "*"
+
+[tool.poetry.dev-dependencies]
+# Optional dev dependencies can go here
