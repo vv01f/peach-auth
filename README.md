@@ -1,5 +1,8 @@
 This is WIP for authentication on [Peach API](https://docs.peachbitcoin.com/)
 
+There is [a blog post](https://peachbitcoin.com/de/blog/peach-under-the-hood/) getting more into detail.
+Just no mnemonic or private key test data to reproduce a signature.
+
 * [x] mnemonic obtained from [decrypted file backup](https://github.com/vv01f/decrypt-peach-file-backup)
 * [x] `shell.nix` for dependencies, apply with command `nix-shell`
 * [x] quite some POSIX shell in `test-mnemonic.sh` with still some Python3 dependencies and the likes of `jq` to validate the steps
@@ -23,22 +26,9 @@ This is WIP for authentication on [Peach API](https://docs.peachbitcoin.com/)
 
 ## how to run
 
-### auth 
-using the mnemonic in the script currently, example for bacon*24:
+### validating steps of the process
 
-`./test-mnemonic.py`
-
-resulting in
-```
-Derived private key:  9a4ab251744f63c60b43f78def56c903d78373761da9051d96efa9be32ab1fe2
-Derived compressed pubkey: 02b13b525b03d047270ba52f1f8d42f5c48d600506c716af16c8c1cfbb1887cbcc
-Hex signature: 30440220155e129f496ad8f4033c71505b7a7eb6c0881bc2c47159dd36cec418bde6e79f022079964d4d799db4a468830f469e305099cc328beb5f92228205d8f56d5a4b3a7c
-Payload JSON: {"publicKey":"02b13b525b03d047270ba52f1f8d42f5c48d600506c716af16c8c1cfbb1887cbcc","message":"Peach Registration 1770467250408","signature":"30440220155e129f496ad8f4033c71505b7a7eb6c0881bc2c47159dd36cec418bde6e79f022079964d4d799db4a468830f469e305099cc328beb5f92228205d8f56d5a4b3a7c"}
-Response: 400
-{"error":"INVALID_SIGNATURE"}
-```
-
-### run to get bacon results
+#### with bacon wallet
 that is for validation of derivation code up to the pubkey, concluding that the privkey can be assumed correct 
 
 ```
@@ -46,7 +36,7 @@ nix-shell
 ./test-mnemonic.sh bacon
 ```
 
-rsulting in
+resulting in
 ```
 === Step 1: Generate seed from mnemonic ===
 Seed: 241e86356db60a686bb8c30b1054eac70701493b6702ed5f4a0e54cd3d13f0ccfd6d8b37506dc5c65af5575e720196d6d81aca24f0f083a5c65597541ada0e32
@@ -75,10 +65,45 @@ Compressed pubkey: 02b13b525b03d047270ba52f1f8d42f5c48d600506c716af16c8c1cfbb188
 passes match with expected pubkey
 ```
 
-### run to get custom results
+#### run to get custom results
 assuming `../decrypted-peach-account.json` is a valid decryted backup file, the mnemonic and pubkey will be read from it.
 
 ```
 nix-shell
 ./test-mnemonic.sh ../decrypted-peach-account.json
+```
+
+### auth 
+
+#### bacon test
+using the mnemonic in the script currently, example for bacon*24:
+
+```
+./test-mnemonic.py
+```
+
+resulting in
+```
+Derived private key:  9a4ab251744f63c60b43f78def56c903d78373761da9051d96efa9be32ab1fe2
+Derived compressed pubkey: 02b13b525b03d047270ba52f1f8d42f5c48d600506c716af16c8c1cfbb1887cbcc
+Hex signature: 30440220155e129f496ad8f4033c71505b7a7eb6c0881bc2c47159dd36cec418bde6e79f022079964d4d799db4a468830f469e305099cc328beb5f92228205d8f56d5a4b3a7c
+Payload JSON: {"publicKey":"02b13b525b03d047270ba52f1f8d42f5c48d600506c716af16c8c1cfbb1887cbcc","message":"Peach Registration 1770467250408","signature":"30440220155e129f496ad8f4033c71505b7a7eb6c0881bc2c47159dd36cec418bde6e79f022079964d4d799db4a468830f469e305099cc328beb5f92228205d8f56d5a4b3a7c"}
+Response: 400
+{"error":"INVALID_SIGNATURE"}
+```
+
+#### success with actually working keys
+
+```
+./test-mnemonic.py ../decrypted-peach-account.json
+```
+
+resulting in (heavy sensoring with `…` to protect the valid key)
+```
+Derived private key:  3…e
+Derived compressed pubkey: 0…8
+Hex signature: 2…4
+Payload JSON: {"publicKey":"0…8","message":"Peach Registration 1770472792537","signature":"2572e3c812577527afc69a67d4399ba9418b088b042e879f5bfee0b2dca2daac3764b67e380263889051ddfc800bbecf7952e6dbe7942c10170f734e62cdf504"}
+Response: 200
+{"expiry":1770515992706,"accessToken":"e…s","user":{"id":"0…8","linkedIds":[],"promotions":[],"disabled":false,"banned":false,"creationDate":"…","lastModified":"…","uniqueId":"…","pgpPublicKey":"…","pgpPublicKeyProof":"…","pgpPublicKeys":[{"publicKey":"…","proof":"…"}],"fcmToken":"…","trades":…,"openedTrades":…,"canceledTrades":…,"freeTrades":…,"maxFreeTrades":…,"hasUnlimitedReferralBonus":false,"disputes":{"opened":…,"won":…,"lost":…,"resolved":…},"medals":["superTrader","fastTrader","ambassador"],"kyc":false,"isBatchingEnabled":false,"rating":…,"ratingCount":…,"tradingLimit":…}}
 ```

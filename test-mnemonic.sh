@@ -4,12 +4,12 @@ set -euo pipefail
 # nix-shell -p "python3.withPackages(ps: [ps.secp256k1 ps.coincurve])" python3Packages.bech32 jq curl
 
 get_jq_from_json() {
-	jq=${1:-}
-	[ -z $jq ] && { printf "Error: query for jq missing\n"; return 1; }
-	fn=${2:-}
-	[ -z $fn ] && { printf "Error: filename missing\n"; return 2; }
-	
-	jq -r "${jq}"  "$fn"
+    jq=${1:-}
+    [ -z $jq ] && { printf "Error: query for jq missing\n"; return 1; }
+    fn=${2:-}
+    [ -z $fn ] && { printf "Error: filename missing\n"; return 2; }
+
+    jq -r "${jq}"  "$fn"
 }
 
 btc_master_key_from_seed() {
@@ -19,10 +19,10 @@ btc_master_key_from_seed() {
 
     # read seed
     if [ -f "$seed_file" ]; then
-		seed_hex=$(cat "$seed_file")
-	else
-		seed_hex="$seed_file"
-	fi
+        seed_hex=$(cat "$seed_file")
+    else
+        seed_hex="$seed_file"
+    fi
 
     # convert hex to binary for OpenSSL
     seed_bin=$(printf '%s' "$seed_hex" | xxd -r -p)
@@ -35,17 +35,17 @@ btc_master_key_from_seed() {
     # split into master private key and chain code
     master_priv=${hmac_hex:0:64}   # first 32 bytes
     master_chain=${hmac_hex:64:64} # last 32 bytes
-	
-	if [ ! "$verbose" = "quiet" ]; then
-		printf "Master Private Key (hex): %s\n" "$master_priv"
-		printf "Master Chain Code   (hex): %s\n" "$master_chain"
-	fi
-	if [ ! "$nofiles" = "nofiles" ]; then
-		printf "%s\n" "$master_priv" > "master_priv.hex"
-		printf "%s\n" "$master_chain" > "master_chain.hex"
-	else
-		printf "%s\n%s\n" "$master_priv" "$master_chain"
-	fi
+
+    if [ ! "$verbose" = "quiet" ]; then
+        printf "Master Private Key (hex): %s\n" "$master_priv"
+        printf "Master Chain Code   (hex): %s\n" "$master_chain"
+    fi
+    if [ ! "$nofiles" = "nofiles" ]; then
+        printf "%s\n" "$master_priv" > "master_priv.hex"
+        printf "%s\n" "$master_chain" > "master_chain.hex"
+    else
+        printf "%s\n%s\n" "$master_priv" "$master_chain"
+    fi
 }
 
 # --- BIP32 hardened derivation ---
@@ -83,8 +83,8 @@ EOF
 
 # btc_priv_to_pub
 btc_priv_to_pub() {
-	priv=${1-}
-	[ -z $priv ] && { printf "argument missing: private key\n" >&2; return 1; }
+    priv=${1-}
+    [ -z $priv ] && { printf "argument missing: private key\n" >&2; return 1; }
     pub=$(python3 - <<EOF
 import binascii, secp256k1
 priv = binascii.unhexlify("$priv")
@@ -93,7 +93,7 @@ pub = sk.pubkey.serialize(compressed=True)
 print(pub.hex())
 EOF
 )
-	# Compressed pubkey: 
+    # Compressed pubkey:
     printf "%s\n" "$pub"
 }
 
@@ -117,7 +117,7 @@ btc_derive_path_4800() {
     printf '%s\n' "$priv" > "$out_file"
     echo "Final private key saved to $out_file"
 
-	# Compressed pubkey: 
+    # Compressed pubkey:
     printf "%s\n" $(btc_priv_to_pub "$priv")
 }
 
@@ -163,7 +163,7 @@ btc_seed_from_mnemonic() {
 
     # save and print
     if [ ! "$out_file" = "none" ]; then
-		printf '%s\n' "$seed_hex" > "$out_file"
+        printf '%s\n' "$seed_hex" > "$out_file"
     fi
     #~ printf '%s\n' "$mnemonic" > "mnemonic.text"
     printf '%s\n' "$seed_hex"
@@ -218,11 +218,11 @@ mnemonic="bacon bacon bacon bacon bacon bacon bacon bacon bacon bacon bacon baco
 passphrase="" # for custom salt added to seed
 arg1="${1-}"         # pass your 24-word mnemonic as first argument
 if [ -z "$arg1" ]; then
-	die "missing arguments: mnemonic or decrypted json backup file"
+    die "missing arguments: mnemonic or decrypted json backup file"
 elif [ -f "$arg1" ]; then
-	fn="$arg1"
-	mnemonic=$(get_jq_from_json '.mnemonic' "$fn")
-	comp_pubkey=$(get_jq_from_json '.publicKey' "$fn")
+    fn="$arg1"
+    mnemonic=$(get_jq_from_json '.mnemonic' "$fn")
+    comp_pubkey=$(get_jq_from_json '.publicKey' "$fn")
 fi
 
 printf "\n%s\n" "=== Step 1: Generate seed from mnemonic ==="
@@ -259,7 +259,7 @@ printf "\n%s\n" "=== Step 4: Compute compressed public key ==="
 pub=$(btc_priv_to_pub "$priv")
 printf "Compressed pubkey: %s\n" "$pub"
 if [ "$pub" = "$comp_pubkey" ] ; then
-	printf "%s\n" "passes match with expected pubkey"
+    printf "%s\n" "passes match with expected pubkey"
 else
-	printf "%s\n" "failed match with expected pubkey"
+    printf "%s\n" "failed match with expected pubkey"
 fi

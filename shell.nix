@@ -7,10 +7,11 @@ pkgs.mkShell {
       ps.coincurve
     ]))
 
-    pkgs.python3Packages.bech32
-    pkgs.python3Packages.requests
     pkgs.jq
     pkgs.curl
+    pkgs.python3Packages.bech32
+    pkgs.python3Packages.requests
+    pkgs.python3Packages.gnureadline # tab completion
     pkgs.python313Packages.bip-utils # for shorter python implementation
   ];
 
